@@ -6,3 +6,350 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum Role {
+  ADMIN
+  EVENT_MANAGER
+  ANALYST
+  VIEWER
+}
+
+enum EventType {
+  WEBINAR
+  PRODUCT_LAUNCH
+  TRAINING
+  INTERNAL_LIVESTREAM
+  TOWN_HALL
+  CUSTOMER_ONBOARDING
+}
+
+enum EventStatus {
+  DRAFT
+  SCHEDULED
+  LIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum AccessRuleType {
+  PUBLIC
+  PRIVATE
+  INVITE_ONLY
+  EMAIL_DOMAIN_RESTRICTED
+  MANUAL_APPROVAL
+}
+
+enum RegistrationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ATTENDED
+}
+
+enum InvitationStatus {
+  PENDING
+  SENT
+  ACCEPTED
+  EXPIRED
+}
+
+enum ContentModuleType {
+  AGENDA
+  SPEAKER
+  RESOURCE_LINK
+  ANNOUNCEMENT
+  CTA_BUTTON
+  REPLAY_SECTION
+}
+
+enum PollStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+enum RecommendationType {
+  READINESS_RISK
+  ENGAGEMENT_RISK
+  AUDIENCE_GROWTH
+  CONTENT_QUALITY
+  POST_EVENT_IMPROVEMENT
+}
+
+enum RecommendationSeverity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum RecommendationStatus {
+  OPEN
+  RESOLVED
+}
+
+model User {
+  id           String            @id @default(cuid())
+  name         String
+  email        String            @unique
+  passwordHash String
+  memberships  WorkspaceMember[]
+  createdEvents Event[]          @relation("EventCreator")
+  auditLogs     AuditLog[]       @relation("AuditActor")
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+}
+
+model Workspace {
+  id             String            @id @default(cuid())
+  name           String
+  slug           String            @unique
+  members        WorkspaceMember[]
+  events         Event[]
+  audienceGroups AudienceGroup[]
+  auditLogs      AuditLog[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
+
+model WorkspaceMember {
+  id          String    @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        Role
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+  @@index([workspaceId])
+}
+
+model Event {
+  id                 String              @id @default(cuid())
+  workspaceId        String
+  createdById        String
+  title              String
+  description        String?
+  eventType          EventType
+  status             EventStatus         @default(DRAFT)
+  startTime          DateTime
+  endTime            DateTime
+  timezone           String              @default("Europe/London")
+  coverImageUrl      String?
+  registrationTarget Int                 @default(100)
+  archivedAt         DateTime?
+
+  workspace          Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy          User                @relation("EventCreator", fields: [createdById], references: [id])
+  accessRules        AccessRule[]
+  registrations      Registration[]
+  invitations        Invitation[]
+  contentModules     ContentModule[]
+  polls              Poll[]
+  questions          Question[]
+  feedback           Feedback[]
+  analyticsSnapshots AnalyticsSnapshot[]
+  recommendations    Recommendation[]
+
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@index([workspaceId])
+  @@index([createdById])
+  @@index([status])
+  @@index([startTime])
+}
+
+model AudienceGroup {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  description String?
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([workspaceId])
+}
+
+model AccessRule {
+  id               String         @id @default(cuid())
+  eventId          String
+  type             AccessRuleType
+  domainWhitelist  String[]
+  requiresApproval Boolean        @default(false)
+  event            Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([eventId])
+}
+
+model Registration {
+  id        String             @id @default(cuid())
+  eventId   String
+  name      String
+  email     String
+  status    RegistrationStatus @default(PENDING)
+  source    String?
+  event     Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@unique([eventId, email])
+  @@index([eventId])
+  @@index([email])
+  @@index([status])
+}
+
+model Invitation {
+  id        String           @id @default(cuid())
+  eventId   String
+  email     String
+  status    InvitationStatus @default(PENDING)
+  sentAt    DateTime?
+  event     Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@unique([eventId, email])
+  @@index([eventId])
+  @@index([email])
+}
+
+model ContentModule {
+  id        String            @id @default(cuid())
+  eventId   String
+  type      ContentModuleType
+  title     String
+  content   String?
+  metadata  Json?
+  order     Int               @default(0)
+  isVisible Boolean           @default(true)
+  event     Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@index([eventId])
+  @@index([type])
+}
+
+model Poll {
+  id        String       @id @default(cuid())
+  eventId   String
+  question  String
+  status    PollStatus   @default(DRAFT)
+  event     Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  options   PollOption[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([eventId])
+  @@index([status])
+}
+
+model PollOption {
+  id      String     @id @default(cuid())
+  pollId  String
+  label   String
+  order   Int        @default(0)
+  poll    Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes   PollVote[]
+
+  @@index([pollId])
+}
+
+model PollVote {
+  id           String     @id @default(cuid())
+  pollOptionId String
+  voterEmail   String
+  pollOption   PollOption @relation(fields: [pollOptionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([pollOptionId, voterEmail])
+  @@index([pollOptionId])
+}
+
+model Question {
+  id         String    @id @default(cuid())
+  eventId    String
+  name       String
+  email      String
+  question   String
+  upvotes    Int       @default(0)
+  isAnswered Boolean   @default(false)
+  answeredAt DateTime?
+  event      Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+
+  @@index([eventId])
+  @@index([isAnswered])
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  eventId   String
+  rating    Int
+  comment   String?
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([eventId])
+}
+
+model AnalyticsSnapshot {
+  id                    String   @id @default(cuid())
+  eventId               String
+  date                  DateTime
+  registrations         Int      @default(0)
+  attendees             Int      @default(0)
+  averageWatchTime      Int      @default(0)
+  engagementScore       Int      @default(0)
+  pollParticipationRate Int      @default(0)
+  qaCount               Int      @default(0)
+  feedbackScore         Int      @default(0)
+  event                 Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt             DateTime @default(now())
+
+  @@unique([eventId, date])
+  @@index([eventId])
+  @@index([date])
+}
+
+model Recommendation {
+  id              String                 @id @default(cuid())
+  eventId          String
+  type            RecommendationType
+  severity        RecommendationSeverity
+  title           String
+  description     String
+  suggestedAction String
+  status          RecommendationStatus   @default(OPEN)
+  event           Event                  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt        DateTime               @default(now())
+  resolvedAt       DateTime?
+
+  @@index([eventId])
+  @@index([status])
+  @@index([severity])
+}
+
+model AuditLog {
+  id          String    @id @default(cuid())
+  workspaceId String
+  actorUserId String?
+  action      String
+  entityType  String
+  entityId    String
+  metadata    Json?
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  actor       User?     @relation("AuditActor", fields: [actorUserId], references: [id])
+  createdAt   DateTime  @default(now())
+
+  @@index([workspaceId])
+  @@index([actorUserId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
