@@ -13,6 +13,18 @@
     "dev:api": "npm run start:dev --workspace apps/api",
     "build:api": "npm run build --workspace apps/api",
     "lint:api": "npm run lint --workspace apps/api",
-    "test:api": "npm run test --workspace apps/api"
+    "test:api": "npm run test --workspace apps/api",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f postgres",
+    "prisma:generate": "prisma generate --schema prisma/schema.prisma",
+    "prisma:migrate": "prisma migrate dev --schema prisma/schema.prisma",
+    "prisma:studio": "prisma studio --schema prisma/schema.prisma"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3"
   }
 }

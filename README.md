@@ -96,6 +96,30 @@ Run backend tests:
 npm run test:api
 ```
 
+Start local PostgreSQL:
+
+```bash
+npm run db:up
+```
+
+Stop local PostgreSQL:
+
+```bash
+npm run db:down
+```
+
+Generate Prisma Client:
+
+```bash
+npm run prisma:generate
+```
+
+Run Prisma migrations:
+
+```bash
+npm run prisma:migrate
+```
+
 ## Environment Variables
 
 Copy `.env.example` to `.env` and update values as needed.
