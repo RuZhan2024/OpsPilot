@@ -60,7 +60,7 @@ export class AuthService {
     };
   }
 
-  async me(user: AuthenticatedUser) {
+  me(user: AuthenticatedUser) {
     return user;
   }
 }
