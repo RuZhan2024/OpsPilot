@@ -7,6 +7,7 @@ import {
   CalendarClock,
   CheckCircle2,
   CircleAlert,
+  Edit,
   FileText,
   ShieldCheck,
   Sparkles,
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useAuth } from '@/components/auth-provider';
 import { apiRequest } from '@/lib/api-client';
 
 type EventStatus = 'DRAFT' | 'SCHEDULED' | 'LIVE' | 'COMPLETED' | 'CANCELLED';
@@ -128,6 +130,8 @@ const typeLabels: Record<EventType, string> = {
 export default function EventDetailPage() {
   const params = useParams<{ id: string }>();
   const eventId = params.id;
+  const { user } = useAuth();
+  const canEditEvent = user?.role === 'ADMIN' || user?.role === 'EVENT_MANAGER';
 
   const eventQuery = useQuery({
     queryKey: ['events', eventId],
@@ -198,6 +202,15 @@ export default function EventDetailPage() {
           </div>
 
           <div className="grid min-w-64 gap-3 rounded-lg bg-slate-50 p-4 ring-1 ring-slate-200">
+            {canEditEvent ? (
+              <Link
+                href={`/events/${event.id}/edit`}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white px-3 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50"
+              >
+                <Edit className="h-4 w-4" aria-hidden="true" />
+                Edit event
+              </Link>
+            ) : null}
             <MetricLine
               label="Owner"
               value={event.createdBy.name}
