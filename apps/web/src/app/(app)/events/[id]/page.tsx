@@ -218,6 +218,13 @@ export default function EventDetailPage() {
               <ShieldCheck className="h-4 w-4" aria-hidden="true" />
               Audience access
             </Link>
+            <Link
+              href={`/events/${event.id}/content`}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white px-3 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50"
+            >
+              <FileText className="h-4 w-4" aria-hidden="true" />
+              Content builder
+            </Link>
             <MetricLine
               label="Owner"
               value={event.createdBy.name}
