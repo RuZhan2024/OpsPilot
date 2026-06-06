@@ -28,13 +28,14 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 const authTokenChangeEvent = 'opspilot-auth-token-change';
+const pendingTokenSnapshot = '__opspilot_pending_token_snapshot__';
 
 function getTokenSnapshot() {
   return window.localStorage.getItem(AUTH_TOKEN_KEY);
 }
 
 function getServerTokenSnapshot() {
-  return null;
+  return pendingTokenSnapshot;
 }
 
 function subscribeToTokenChanges(onStoreChange: () => void) {
@@ -59,13 +60,15 @@ function clearStoredToken() {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
-  const token = useSyncExternalStore(
+  const tokenSnapshot = useSyncExternalStore(
     subscribeToTokenChanges,
     getTokenSnapshot,
     getServerTokenSnapshot,
   );
+  const hasCheckedStoredToken = tokenSnapshot !== pendingTokenSnapshot;
+  const token = hasCheckedStoredToken ? tokenSnapshot : null;
 
-  const { data: user = null, isLoading } = useQuery({
+  const { data: user = null, isLoading: isUserLoading } = useQuery({
     queryKey: ['auth', 'me', token],
     queryFn: () =>
       apiRequest<AuthenticatedUser>('/auth/me', {
@@ -109,13 +112,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       user,
       token,
-      isLoading,
+      isLoading: !hasCheckedStoredToken || (Boolean(token) && isUserLoading),
       isAuthenticated: Boolean(user && token),
       login,
       logout,
       refreshUser,
     }),
-    [isLoading, login, logout, refreshUser, token, user],
+    [
+      hasCheckedStoredToken,
+      isUserLoading,
+      login,
+      logout,
+      refreshUser,
+      token,
+      user,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

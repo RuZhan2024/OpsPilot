@@ -31,9 +31,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.replace('/login');
+      const queryString =
+        typeof window === 'undefined'
+          ? ''
+          : window.location.search.replace(/^\?/, '');
+      const currentPath = queryString ? `${pathname}?${queryString}` : pathname;
+
+      router.replace(`/login?redirect=${encodeURIComponent(currentPath)}`);
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, pathname, router]);
 
   if (isLoading) {
     return (
@@ -126,4 +132,3 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-

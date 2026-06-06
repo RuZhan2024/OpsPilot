@@ -42,7 +42,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.replace('/dashboard');
+      router.replace(getSafeRedirectPath(getRedirectParam()));
     }
   }, [isAuthenticated, isLoading, router]);
 
@@ -50,7 +50,7 @@ export default function LoginPage() {
     try {
       await login(values);
       toast.success('Signed in');
-      router.replace('/dashboard');
+      router.replace(getSafeRedirectPath(getRedirectParam()));
     } catch (error) {
       const message =
         error instanceof ApiError ? error.message : 'Unable to sign in';
@@ -183,3 +183,18 @@ export default function LoginPage() {
   );
 }
 
+function getSafeRedirectPath(value: string | null) {
+  if (!value || !value.startsWith('/') || value.startsWith('//')) {
+    return '/dashboard';
+  }
+
+  return value;
+}
+
+function getRedirectParam() {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  return new URLSearchParams(window.location.search).get('redirect');
+}
