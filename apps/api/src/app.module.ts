@@ -9,6 +9,7 @@ import { ContentModulesModule } from './content-modules/content-modules.module';
 import { EventsModule } from './events/events.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RecommendationsModule } from './recommendations/recommendations.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { RecommendationsModule } from './recommendations/recommendations.module'
     AnalyticsModule,
     RecommendationsModule,
     AuditLogsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

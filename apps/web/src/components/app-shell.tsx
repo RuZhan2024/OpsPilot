@@ -8,6 +8,7 @@ import {
   LogOut,
   ShieldCheck,
   Sparkles,
+  UserRoundCog,
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -21,7 +22,8 @@ const navigation = [
   { label: 'Audience', href: '/audience-groups', icon: Users },
   { label: 'Analytics', href: '/analytics', icon: BarChart3 },
   { label: 'Recommendations', href: '/recommendations', icon: Sparkles },
-  { label: 'Audit Logs', href: '/audit-logs', icon: FileText },
+  { label: 'Users', href: '/users', icon: UserRoundCog, roles: ['ADMIN'] },
+  { label: 'Audit Logs', href: '/audit-logs', icon: FileText, roles: ['ADMIN'] },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -67,7 +69,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="flex-1 space-y-1 px-3 py-4">
-          {navigation.map((item) => {
+          {navigation
+            .filter((item) => !item.roles || item.roles.includes(user.role))
+            .map((item) => {
             const Icon = item.icon;
             const isActive =
               pathname === item.href || pathname.startsWith(`${item.href}/`);
