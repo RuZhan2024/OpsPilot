@@ -9,6 +9,7 @@ import {
   CircleAlert,
   Edit,
   FileText,
+  Radio,
   ShieldCheck,
   Sparkles,
   Users,
@@ -224,6 +225,13 @@ export default function EventDetailPage() {
             >
               <FileText className="h-4 w-4" aria-hidden="true" />
               Content builder
+            </Link>
+            <Link
+              href={`/events/${event.id}/engagement`}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white px-3 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50"
+            >
+              <Radio className="h-4 w-4" aria-hidden="true" />
+              Engagement
             </Link>
             <Link
               href={`/events/${event.id}/analytics`}
