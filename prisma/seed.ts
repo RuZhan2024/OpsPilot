@@ -10,6 +10,7 @@ async function main() {
 
   await prisma.auditLog.deleteMany();
   await prisma.recommendation.deleteMany();
+  await prisma.streamSetting.deleteMany();
   await prisma.analyticsSnapshot.deleteMany();
   await prisma.feedback.deleteMany();
   await prisma.question.deleteMany();
@@ -177,6 +178,50 @@ async function main() {
   }
 
   const [launchEvent, onboardingEvent, townHallEvent, partnerEvent, securityEvent, aiRoadmapEvent, workshopEvent] = events;
+
+  await prisma.streamSetting.createMany({
+    data: [
+      {
+        eventId: launchEvent.id,
+        ingestServerUrl: "rtmp://live.opspilot.dev/live",
+        streamKey: `op_${launchEvent.id.slice(0, 8)}_product-launch`,
+        streamStatus: "READY",
+        recordingEnabled: true,
+        lowLatencyMode: false,
+        speakerTestCompleted: true,
+        networkCheckCompleted: false,
+        backupStreamEnabled: true,
+        viewerUrl: `http://localhost:3000/watch/${launchEvent.id}`,
+        mobileViewerUrl: `http://localhost:3000/watch/${launchEvent.id}?view=mobile`,
+      },
+      {
+        eventId: townHallEvent.id,
+        ingestServerUrl: "rtmp://live.opspilot.dev/live",
+        streamKey: `op_${townHallEvent.id.slice(0, 8)}_town-hall`,
+        streamStatus: "RECEIVING_SIGNAL",
+        recordingEnabled: true,
+        lowLatencyMode: true,
+        speakerTestCompleted: true,
+        networkCheckCompleted: true,
+        backupStreamEnabled: false,
+        viewerUrl: `http://localhost:3000/watch/${townHallEvent.id}`,
+        mobileViewerUrl: `http://localhost:3000/watch/${townHallEvent.id}?view=mobile`,
+      },
+      {
+        eventId: securityEvent.id,
+        ingestServerUrl: "rtmp://live.opspilot.dev/live",
+        streamKey: `op_${securityEvent.id.slice(0, 8)}_security`,
+        streamStatus: "OFFLINE",
+        recordingEnabled: true,
+        lowLatencyMode: false,
+        speakerTestCompleted: true,
+        networkCheckCompleted: true,
+        backupStreamEnabled: false,
+        viewerUrl: `http://localhost:3000/watch/${securityEvent.id}`,
+        mobileViewerUrl: `http://localhost:3000/watch/${securityEvent.id}?view=mobile`,
+      },
+    ],
+  });
 
   await prisma.audienceGroup.createMany({
     data: [

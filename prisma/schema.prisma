@@ -87,16 +87,23 @@ enum RecommendationStatus {
   RESOLVED
 }
 
+enum StreamStatus {
+  NOT_CONFIGURED
+  READY
+  RECEIVING_SIGNAL
+  OFFLINE
+}
+
 model User {
-  id           String            @id @default(cuid())
-  name         String
-  email        String            @unique
-  passwordHash String
-  memberships  WorkspaceMember[]
-  createdEvents Event[]          @relation("EventCreator")
-  auditLogs     AuditLog[]       @relation("AuditActor")
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
+  id            String            @id @default(cuid())
+  name          String
+  email         String            @unique
+  passwordHash  String
+  memberships   WorkspaceMember[]
+  createdEvents Event[]           @relation("EventCreator")
+  auditLogs     AuditLog[]        @relation("AuditActor")
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 }
 
 model Workspace {
@@ -127,18 +134,18 @@ model WorkspaceMember {
 }
 
 model Event {
-  id                 String              @id @default(cuid())
+  id                 String      @id @default(cuid())
   workspaceId        String
   createdById        String
   title              String
   description        String?
   eventType          EventType
-  status             EventStatus         @default(DRAFT)
+  status             EventStatus @default(DRAFT)
   startTime          DateTime
   endTime            DateTime
-  timezone           String              @default("Europe/London")
+  timezone           String      @default("Europe/London")
   coverImageUrl      String?
-  registrationTarget Int                 @default(100)
+  registrationTarget Int         @default(100)
   archivedAt         DateTime?
 
   workspace          Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
@@ -152,9 +159,10 @@ model Event {
   feedback           Feedback[]
   analyticsSnapshots AnalyticsSnapshot[]
   recommendations    Recommendation[]
+  streamSetting      StreamSetting?
 
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([workspaceId])
   @@index([createdById])
@@ -251,12 +259,12 @@ model Poll {
 }
 
 model PollOption {
-  id      String     @id @default(cuid())
-  pollId  String
-  label   String
-  order   Int        @default(0)
-  poll    Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
-  votes   PollVote[]
+  id     String     @id @default(cuid())
+  pollId String
+  label  String
+  order  Int        @default(0)
+  poll   Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes  PollVote[]
 
   @@index([pollId])
 }
@@ -320,7 +328,7 @@ model AnalyticsSnapshot {
 
 model Recommendation {
   id              String                 @id @default(cuid())
-  eventId          String
+  eventId         String
   type            RecommendationType
   severity        RecommendationSeverity
   title           String
@@ -328,12 +336,32 @@ model Recommendation {
   suggestedAction String
   status          RecommendationStatus   @default(OPEN)
   event           Event                  @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  createdAt        DateTime               @default(now())
-  resolvedAt       DateTime?
+  createdAt       DateTime               @default(now())
+  resolvedAt      DateTime?
 
   @@index([eventId])
   @@index([status])
   @@index([severity])
+}
+
+model StreamSetting {
+  id                    String       @id @default(cuid())
+  eventId               String       @unique
+  ingestServerUrl       String       @default("rtmp://live.opspilot.dev/live")
+  streamKey             String
+  streamStatus          StreamStatus @default(NOT_CONFIGURED)
+  recordingEnabled      Boolean      @default(true)
+  lowLatencyMode        Boolean      @default(false)
+  speakerTestCompleted  Boolean      @default(false)
+  networkCheckCompleted Boolean      @default(false)
+  backupStreamEnabled   Boolean      @default(false)
+  viewerUrl             String?
+  mobileViewerUrl       String?
+  event                 Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  @@index([streamStatus])
 }
 
 model AuditLog {

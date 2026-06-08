@@ -4,6 +4,12 @@ OpsPilot is a full-stack B2B SaaS platform for managing online event operations,
 
 The project is built as a production-style portfolio project for frontend and full-stack developer roles. It focuses on realistic SaaS admin workflows rather than a simple event booking or CRUD demo.
 
+## Development Plan
+
+The detailed implementation roadmap lives in [docs/development-plan.md](docs/development-plan.md).
+
+It tracks the current MVP, high-value portfolio enhancements and the recommended order for future development.
+
 ## Project Status
 
 MVP development is in progress with the main full-stack product flow implemented locally.
@@ -20,11 +26,15 @@ Completed:
 - Rule-based AI-assisted recommendation engine
 - Audit logs for key operational actions
 - Demo seed data for a realistic SaaS workspace
+- Stream setup and live control mock for event operations
 
 Still planned before public portfolio release:
 
+- Media library and replay operations
+- Audience whitelist import and approval workflow
+- Analytics upgrade with livestream-specific metrics
 - Final UI polish pass
-- Business-focused backend tests
+- Expanded business-focused backend tests
 - README screenshots
 - Production deployment
 
@@ -123,6 +133,22 @@ OpsPilot includes an event engagement workspace for:
 
 The MVP uses REST APIs and seed data rather than real-time WebSocket updates.
 
+### Stream Setup and Live Control Mock
+
+Event managers can configure operational stream settings for an event without requiring real livestream infrastructure.
+
+The stream setup workflow includes:
+
+- RTMP ingest server URL
+- Stream key management
+- Stream status tracking
+- Recording and low-latency settings
+- Pre-live checklist
+- Desktop and mobile viewer URLs
+- QR preview mock
+
+This feature is intentionally API-backed but infrastructure-light, so the public demo remains stable while still demonstrating enterprise livestream operations thinking.
+
 ### Analytics Dashboards
 
 The dashboard and event analytics pages use API-driven seed data to show operational metrics such as:
@@ -180,6 +206,8 @@ opspilot/
   prisma/
     schema.prisma # Database schema
     seed.ts       # Demo workspace seed data
+  docs/
+    development-plan.md
   docker-compose.yml
   README.md
 ```
@@ -243,6 +271,13 @@ PATCH  /events/:id
 DELETE /events/:id
 PATCH  /events/:id/status
 GET    /events/:id/readiness
+```
+
+Stream settings:
+
+```txt
+GET   /events/:eventId/stream-settings
+PATCH /events/:eventId/stream-settings
 ```
 
 Audience:
@@ -417,6 +452,7 @@ Capture checklist:
 - Dashboard overview
 - Event list
 - Event detail
+- Stream setup
 - Audience access rules
 - Content builder
 - Engagement tools
@@ -449,15 +485,24 @@ OpsPilot is intended to support a senior frontend or full-stack developer portfo
 
 ## Roadmap
 
-Next improvements:
+Recommended portfolio roadmap:
 
-- Expand backend tests for auth, RBAC, event CRUD, readiness scoring and recommendation generation
-- Add Playwright smoke tests for login and core event workflows
-- Add screenshot assets to the README
-- Add Swagger/OpenAPI documentation
-- Add CSV export for analytics
-- Add workspace settings
-- Deploy the public demo
+- V1.0: finish core SaaS MVP verification, UI polish, tests, screenshots and deployment
+- V1.1: stream setup and live control mock for event operations
+- V1.2: add media library and replay asset operations
+- V1.3: add audience whitelist import and registration approval workflow
+- V1.4: upgrade analytics with device, source, geography, peak viewers and drop-off metrics
+- V1.5: package the project for GitHub, CV, LinkedIn and live demo review
+
+Optional V2 improvements:
+
+- Swagger/OpenAPI documentation
+- Playwright smoke tests
+- Real OpenAI integration for recommendations
+- Drag-and-drop content module ordering
+- Notification center
+- Workspace switcher
+- CSV export implementation
 
 ## License
 
