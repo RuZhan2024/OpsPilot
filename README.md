@@ -186,6 +186,11 @@ The dashboard and event analytics pages use API-driven seed data to show operati
 - Poll participation rate
 - Q&A count
 - Feedback score
+- Peak concurrent viewers
+- Device breakdown
+- Watch source breakdown
+- Audience geography
+- Drop-off trend
 
 Charts are rendered with Recharts.
 
@@ -534,7 +539,7 @@ Recommended portfolio roadmap:
 - V1.1: stream setup and live control mock for event operations
 - V1.2: media library and replay asset operations
 - V1.3: audience whitelist import and registration approval workflow
-- V1.4: upgrade analytics with device, source, geography, peak viewers and drop-off metrics
+- V1.4: analytics upgraded with device, source, geography, peak viewers and drop-off metrics
 - V1.5: package the project for GitHub, CV, LinkedIn and live demo review
 
 Optional V2 improvements:

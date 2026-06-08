@@ -6,7 +6,11 @@ import {
   ArrowLeft,
   BarChart3,
   Clock,
+  Globe2,
   MessageSquareText,
+  MonitorSmartphone,
+  MousePointerClick,
+  PieChart as PieChartIcon,
   Radio,
   Target,
   TrendingUp,
@@ -21,9 +25,12 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
   Legend,
   Line,
   LineChart,
+  Pie,
+  PieChart as RechartsPieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -77,7 +84,24 @@ type EventAnalytics = {
     domain: string;
     count: number;
   }>;
+  livestream: {
+    peakConcurrentViewers: number;
+    deviceBreakdown: BreakdownItem[];
+    watchSourceBreakdown: BreakdownItem[];
+    geographyBreakdown: BreakdownItem[];
+    dropOffTrend: Array<{
+      segment: string;
+      viewers: number;
+      dropOffRate: number;
+    }>;
+  };
   latestSnapshot: EventTimeseriesPoint | null;
+};
+
+type BreakdownItem = {
+  label: string;
+  count: number;
+  percentage: number;
 };
 
 type EventTimeseriesPoint = {
@@ -85,6 +109,7 @@ type EventTimeseriesPoint = {
   date: string;
   registrations: number;
   attendees: number;
+  peakConcurrentViewers: number;
   attendanceRate: number;
   averageWatchTime: number;
   engagementScore: number;
@@ -109,6 +134,8 @@ const statusStyles: Record<EventStatus, string> = {
   COMPLETED: 'bg-zinc-100 text-zinc-700 ring-zinc-200',
   CANCELLED: 'bg-red-50 text-red-700 ring-red-100',
 };
+
+const chartPalette = ['#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed'];
 
 export default function EventAnalyticsPage() {
   const params = useParams<{ id: string }>();
@@ -212,7 +239,7 @@ export default function EventAnalyticsPage() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <KpiCard
           icon={Users}
           label="Registrations"
@@ -224,6 +251,12 @@ export default function EventAnalyticsPage() {
           label="Attendees"
           value={formatNumber(analytics.totals.attendees)}
           detail={`${analytics.totals.pollParticipationRate}% poll participation`}
+        />
+        <KpiCard
+          icon={Radio}
+          label="Peak viewers"
+          value={formatNumber(analytics.livestream.peakConcurrentViewers)}
+          detail="Estimated concurrent"
         />
         <KpiCard
           icon={Clock}
@@ -271,13 +304,21 @@ export default function EventAnalyticsPage() {
                 strokeWidth={2}
                 dot={false}
               />
+              <Line
+                type="monotone"
+                dataKey="peakConcurrentViewers"
+                name="Peak viewers"
+                stroke="#d97706"
+                strokeWidth={2}
+                dot={false}
+              />
             </LineChart>
           </ResponsiveContainer>
         </ChartPanel>
 
         <ChartPanel
           title="Audience domains"
-          icon={Users}
+          icon={PieChartIcon}
           isEmpty={analytics.audienceDomains.length === 0}
           emptyText="No audience domain data is available yet."
         >
@@ -299,6 +340,96 @@ export default function EventAnalyticsPage() {
               <Tooltip contentStyle={tooltipStyle} />
               <Bar dataKey="count" name="Registrations" fill="#0f766e" />
             </BarChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+        <ChartPanel
+          title="Device mix"
+          icon={MonitorSmartphone}
+          isEmpty={analytics.livestream.deviceBreakdown.length === 0}
+          emptyText="No device breakdown data is available yet."
+        >
+          <ResponsiveContainer width="100%" height={280} minWidth={0}>
+            <RechartsPieChart>
+              <Pie
+                data={analytics.livestream.deviceBreakdown}
+                dataKey="count"
+                nameKey="label"
+                innerRadius={54}
+                outerRadius={92}
+                paddingAngle={2}
+              >
+                {analytics.livestream.deviceBreakdown.map((item, index) => (
+                  <Cell
+                    key={item.label}
+                    fill={chartPalette[index % chartPalette.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip contentStyle={tooltipStyle} />
+              <Legend />
+            </RechartsPieChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+
+        <ChartPanel
+          title="Watch source breakdown"
+          icon={MousePointerClick}
+          isEmpty={analytics.livestream.watchSourceBreakdown.length === 0}
+          emptyText="No watch source data is available yet."
+        >
+          <BreakdownBarChart
+            data={analytics.livestream.watchSourceBreakdown}
+            barName="Registrations"
+          />
+        </ChartPanel>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
+        <ChartPanel
+          title="Top audience locations"
+          icon={Globe2}
+          isEmpty={analytics.livestream.geographyBreakdown.length === 0}
+          emptyText="No audience location data is available yet."
+        >
+          <BreakdownBarChart
+            data={analytics.livestream.geographyBreakdown}
+            barName="Audience"
+          />
+        </ChartPanel>
+
+        <ChartPanel
+          title="Drop-off trend"
+          icon={Radio}
+          isEmpty={analytics.livestream.dropOffTrend.length === 0}
+          emptyText="No drop-off data is available yet."
+        >
+          <ResponsiveContainer width="100%" height={280} minWidth={0}>
+            <AreaChart
+              data={analytics.livestream.dropOffTrend}
+              margin={{ left: 4, right: 12 }}
+            >
+              <defs>
+                <linearGradient id="eventDropOff" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#2563eb" stopOpacity={0.26} />
+                  <stop offset="95%" stopColor="#2563eb" stopOpacity={0.04} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="segment" tickLine={false} stroke="#64748b" />
+              <YAxis tickLine={false} stroke="#64748b" />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Area
+                type="monotone"
+                dataKey="viewers"
+                name="Viewers"
+                stroke="#2563eb"
+                fill="url(#eventDropOff)"
+                strokeWidth={2}
+              />
+            </AreaChart>
           </ResponsiveContainer>
         </ChartPanel>
       </section>
@@ -457,6 +588,32 @@ function ChartPanel({
         )}
       </div>
     </section>
+  );
+}
+
+function BreakdownBarChart({
+  data,
+  barName,
+}: {
+  data: BreakdownItem[];
+  barName: string;
+}) {
+  return (
+    <ResponsiveContainer width="100%" height={280} minWidth={0}>
+      <BarChart data={data} layout="vertical" margin={{ left: 24, right: 16 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+        <XAxis type="number" tickLine={false} stroke="#64748b" />
+        <YAxis
+          type="category"
+          dataKey="label"
+          width={132}
+          tickLine={false}
+          stroke="#64748b"
+        />
+        <Tooltip contentStyle={tooltipStyle} />
+        <Bar dataKey="count" name={barName} fill="#2563eb" />
+      </BarChart>
+    </ResponsiveContainer>
   );
 }
 

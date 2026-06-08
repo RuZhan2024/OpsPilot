@@ -353,6 +353,8 @@ Suggested GitHub issues:
 
 ### V1.4 - Analytics Upgrade
 
+Status: Implemented.
+
 Purpose:
 
 Make the analytics experience visually stronger and more specific to online event operations.
@@ -513,7 +515,7 @@ Use this sequence after the current MVP:
 2. Build V1.1 Stream Setup and Live Control Mock
 3. Build V1.2 Media Library and Replay Operations
 4. Build V1.3 Audience Whitelist Import and Approval Workflow
-5. Build V1.4 Analytics Upgrade
+5. V1.4 Analytics Upgrade completed
 6. Add frontend test foundation and critical workflow tests
 7. Build V1.5 Release Polish and Portfolio Packaging
 
@@ -523,11 +525,11 @@ Do not start real AI, real livestreaming or complex storage before V1.5.
 
 The next best feature to build is:
 
-> V1.4 Analytics Upgrade
+> Frontend test foundation and critical workflow tests
 
 Reason:
 
-Stream Setup, Media Library and Audience Whitelist workflows are now in place. Analytics Upgrade is the next strongest step because it creates high-signal screenshots and lets OpsPilot tell a clearer event-performance story.
+Stream Setup, Media Library, Audience Whitelist and Analytics Upgrade are now in place. Frontend tests are the next strongest step because they prove the dashboard, auth flow and role-aware UI can be maintained safely as the portfolio moves toward release polish.
 
 ## Definition of Done for Each Feature
 

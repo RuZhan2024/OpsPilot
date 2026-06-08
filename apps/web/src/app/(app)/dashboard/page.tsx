@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { AlertTriangle, CalendarDays, TrendingUp, Users } from 'lucide-react';
+import { AlertTriangle, CalendarDays, Radio, Users } from 'lucide-react';
 import { apiRequest } from '@/lib/api-client';
 
 type DashboardSummary = {
@@ -12,6 +12,7 @@ type DashboardSummary = {
     totalAttendees: number;
     averageAttendanceRate: number;
     averageEngagementScore: number;
+    peakConcurrentViewers: number;
     openHighRiskRecommendations: number;
   };
   eventReadiness: Array<{
@@ -45,10 +46,9 @@ const kpiConfig = [
     icon: Users,
   },
   {
-    key: 'averageAttendanceRate',
-    label: 'Attendance rate',
-    icon: TrendingUp,
-    suffix: '%',
+    key: 'peakConcurrentViewers',
+    label: 'Peak viewers',
+    icon: Radio,
   },
   {
     key: 'openHighRiskRecommendations',
@@ -103,7 +103,6 @@ export default function DashboardPage() {
                   </div>
                   <div className="mt-3 text-3xl font-semibold text-slate-950">
                     {value}
-                    {'suffix' in item ? item.suffix : ''}
                   </div>
                 </div>
               );
@@ -208,4 +207,3 @@ function DashboardSkeleton() {
     </div>
   );
 }
-
