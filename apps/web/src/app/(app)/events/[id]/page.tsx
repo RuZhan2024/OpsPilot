@@ -1,7 +1,8 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  Archive,
   ArrowLeft,
   BarChart3,
   CalendarClock,
@@ -15,7 +16,9 @@ import {
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
 import { useAuth } from '@/components/auth-provider';
 import { apiRequest } from '@/lib/api-client';
 
@@ -131,8 +134,30 @@ const typeLabels: Record<EventType, string> = {
 export default function EventDetailPage() {
   const params = useParams<{ id: string }>();
   const eventId = params.id;
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const { user } = useAuth();
+  const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
   const canEditEvent = user?.role === 'ADMIN' || user?.role === 'EVENT_MANAGER';
+
+  const archiveMutation = useMutation({
+    mutationFn: () =>
+      apiRequest<{ id: string; archivedAt: string }>(`/events/${eventId}`, {
+        method: 'DELETE',
+      }),
+    onSuccess: async () => {
+      toast.success('Event archived');
+      setIsArchiveDialogOpen(false);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['events'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] }),
+      ]);
+      router.push('/events');
+    },
+    onError: () => {
+      toast.error('Event could not be archived');
+    },
+  });
 
   const eventQuery = useQuery({
     queryKey: ['events', eventId],
@@ -247,6 +272,16 @@ export default function EventDetailPage() {
               <Sparkles className="h-4 w-4" aria-hidden="true" />
               Recommendations
             </Link>
+            {canEditEvent ? (
+              <button
+                type="button"
+                onClick={() => setIsArchiveDialogOpen(true)}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-red-50 px-3 text-sm font-semibold text-red-700 ring-1 ring-red-100 transition hover:bg-red-100"
+              >
+                <Archive className="h-4 w-4" aria-hidden="true" />
+                Archive event
+              </button>
+            ) : null}
             <MetricLine
               label="Owner"
               value={event.createdBy.name}
@@ -438,6 +473,15 @@ export default function EventDetailPage() {
           </div>
         )}
       </section>
+
+      {isArchiveDialogOpen ? (
+        <ArchiveEventDialog
+          eventTitle={event.title}
+          isPending={archiveMutation.isPending}
+          onCancel={() => setIsArchiveDialogOpen(false)}
+          onConfirm={() => archiveMutation.mutate()}
+        />
+      ) : null}
     </div>
   );
 }
@@ -552,6 +596,65 @@ function EventDetailSkeleton() {
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <div className="h-96 animate-pulse rounded-lg bg-white" />
         <div className="h-96 animate-pulse rounded-lg bg-white" />
+      </div>
+    </div>
+  );
+}
+
+function ArchiveEventDialog({
+  eventTitle,
+  isPending,
+  onCancel,
+  onConfirm,
+}: {
+  eventTitle: string;
+  isPending: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="archive-event-title"
+        className="w-full max-w-md rounded-lg border border-slate-200 bg-white shadow-xl"
+      >
+        <div className="border-b border-slate-200 px-5 py-4">
+          <h2
+            id="archive-event-title"
+            className="text-base font-semibold text-slate-950"
+          >
+            Archive event
+          </h2>
+        </div>
+        <div className="space-y-3 px-5 py-4">
+          <p className="text-sm text-slate-600">
+            This will remove the event from active event lists, dashboards and
+            operational workflows.
+          </p>
+          <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+            {eventTitle}
+          </div>
+        </div>
+        <div className="flex flex-col-reverse gap-2 border-t border-slate-200 px-5 py-4 sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={isPending}
+            className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={isPending}
+            className="inline-flex h-10 items-center justify-center rounded-md bg-red-600 px-4 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isPending ? 'Archiving...' : 'Archive event'}
+          </button>
+        </div>
       </div>
     </div>
   );
