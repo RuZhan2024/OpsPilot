@@ -227,6 +227,67 @@ export default function EventDetailPage() {
                 {event.description}
               </p>
             ) : null}
+            <div className="mt-5 grid gap-4 border-t border-slate-100 pt-5 sm:grid-cols-2 xl:grid-cols-4">
+              <HeroMetric
+                label="Readiness"
+                value={readiness ? `${readiness.score}%` : 'Loading'}
+                detail={readiness?.status.replaceAll('_', ' ') ?? 'Calculating'}
+              />
+              <HeroMetric
+                label="Registrations"
+                value={`${latestSnapshot?.registrations ?? event.registrations.length}`}
+                detail={`Target ${event.registrationTarget}`}
+              />
+              <HeroMetric
+                label="Start"
+                value={formatDate(event.startTime)}
+                detail={event.timezone}
+              />
+              <HeroMetric
+                label="Owner"
+                value={event.createdBy.name}
+                detail={event.createdBy.email}
+              />
+            </div>
+            <div className="mt-6 border-t border-slate-100 pt-5">
+              <div className="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Setup snapshot
+              </div>
+              <div className="grid gap-5 lg:grid-cols-3">
+                <HeroSnapshotColumn
+                  title="Audience"
+                  items={event.accessRules.map((rule) => ({
+                    id: rule.id,
+                    label: rule.type.replaceAll('_', ' '),
+                    detail:
+                      rule.domainWhitelist.length > 0
+                        ? rule.domainWhitelist.join(', ')
+                        : rule.requiresApproval
+                          ? 'Approval required'
+                          : 'Configured',
+                  }))}
+                  empty="No access rule configured"
+                />
+                <HeroSnapshotColumn
+                  title="Content"
+                  items={event.contentModules.slice(0, 3).map((module) => ({
+                    id: module.id,
+                    label: module.title,
+                    detail: module.type.replaceAll('_', ' '),
+                  }))}
+                  empty="No content modules yet"
+                />
+                <HeroSnapshotColumn
+                  title="Risks"
+                  items={openRecommendations.slice(0, 3).map((item) => ({
+                    id: item.id,
+                    label: item.title,
+                    detail: item.severity,
+                  }))}
+                  empty="No open recommendations"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="grid min-w-64 gap-3 rounded-lg bg-slate-50 p-4 ring-1 ring-slate-200">
@@ -521,6 +582,60 @@ function OverviewCard({
       </div>
       <div className="mt-3 text-3xl font-semibold text-slate-950">{value}</div>
       <div className="mt-1 truncate text-sm text-slate-500">{detail}</div>
+    </div>
+  );
+}
+
+function HeroMetric({
+  label,
+  value,
+  detail,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+        {label}
+      </div>
+      <div className="mt-2 truncate text-sm font-semibold text-slate-950">
+        {value}
+      </div>
+      <div className="mt-1 truncate text-xs text-slate-500">{detail}</div>
+    </div>
+  );
+}
+
+function HeroSnapshotColumn({
+  title,
+  items,
+  empty,
+}: {
+  title: string;
+  items: Array<{ id: string; label: string; detail: string }>;
+  empty: string;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="text-sm font-semibold text-slate-950">{title}</div>
+      {items.length === 0 ? (
+        <div className="mt-3 text-sm text-slate-500">{empty}</div>
+      ) : (
+        <div className="mt-3 space-y-3">
+          {items.map((item) => (
+            <div key={item.id}>
+              <div className="truncate text-sm font-medium text-slate-800">
+                {item.label}
+              </div>
+              <div className="mt-1 truncate text-xs text-slate-500">
+                {item.detail}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
