@@ -42,7 +42,6 @@ Completed:
 Remaining before public portfolio release:
 
 - Final UI polish pass
-- README screenshots
 - Production deployment
 - Final live demo verification
 
@@ -515,24 +514,27 @@ Frontend tests use Vitest, React Testing Library, jsdom, user-event and jest-dom
 
 ## Screenshots
 
-Screenshots should be captured during the final UI polish and deployment pass. The capture plan is documented in [docs/release-checklist.md](docs/release-checklist.md).
+Screenshots are stored in [docs/screenshots](docs/screenshots). The capture plan is documented in [docs/release-checklist.md](docs/release-checklist.md).
 
-Capture checklist:
+| Login | Dashboard |
+| --- | --- |
+| ![Login page](docs/screenshots/01-login.png) | ![Dashboard overview](docs/screenshots/02-dashboard.png) |
 
-- Login page
-- Dashboard overview
-- Event list
-- Event detail
-- Stream setup
-- Media library
-- Event media and replay
-- Audience access rules
-- Whitelist import and registration approval
-- Content builder
-- Engagement tools
-- Analytics dashboard
-- Recommendations page
-- Audit logs
+| Event Detail | Audience Access |
+| --- | --- |
+| ![Event detail](docs/screenshots/04-event-detail.png) | ![Audience access rules and approval workflow](docs/screenshots/05-audience-access.png) |
+
+| Content Builder | Stream Setup |
+| --- | --- |
+| ![Content builder](docs/screenshots/06-content-builder.png) | ![Stream setup](docs/screenshots/07-stream-setup.png) |
+
+| Media Library | Analytics |
+| --- | --- |
+| ![Media library](docs/screenshots/08-media-library.png) | ![Analytics dashboard](docs/screenshots/09-analytics.png) |
+
+| Recommendations | Audit Logs |
+| --- | --- |
+| ![Recommendations page](docs/screenshots/10-recommendations.png) | ![Audit logs](docs/screenshots/11-audit-logs.png) |
 
 ## Deployment Plan
 

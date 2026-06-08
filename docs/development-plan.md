@@ -447,7 +447,9 @@ Implemented packaging foundation:
 - `docs/api.md`
 - `docs/portfolio.md`
 - `docs/release-checklist.md`
+- `docs/screenshots/`
 - README documentation links
+- README screenshot section
 - Root verification scripts
 
 Suggested GitHub issues:

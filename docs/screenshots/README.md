@@ -1,6 +1,6 @@
 # Screenshots
 
-Store final portfolio screenshots in this directory.
+Portfolio screenshots are stored in this directory.
 
 Recommended viewport:
 
@@ -8,7 +8,7 @@ Recommended viewport:
 1440 x 1000
 ```
 
-Recommended filenames:
+Captured filenames:
 
 ```txt
 01-login.png
@@ -24,4 +24,4 @@ Recommended filenames:
 11-audit-logs.png
 ```
 
-Only add screenshots after the final UI polish pass, so the README does not show outdated interface states.
+Refresh these screenshots after major UI changes or before final deployment.
