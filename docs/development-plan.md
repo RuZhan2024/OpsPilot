@@ -407,6 +407,8 @@ Suggested GitHub issues:
 
 ### V1.5 - Release Polish and Portfolio Packaging
 
+Status: In progress.
+
 Purpose:
 
 Prepare OpsPilot for GitHub, live demo, CV and LinkedIn.
@@ -414,6 +416,10 @@ Prepare OpsPilot for GitHub, live demo, CV and LinkedIn.
 Scope:
 
 - Frontend testing setup and critical workflow tests
+- Architecture documentation
+- API overview documentation
+- Portfolio/CV/LinkedIn copy
+- Release checklist
 - Screenshot capture
 - README screenshot section
 - Architecture diagram polish
@@ -430,9 +436,19 @@ Acceptance criteria:
 - README has screenshots
 - Demo accounts work
 - `npm run test:web` exists and covers critical user-visible frontend behaviour
+- `npm run verify` runs API and frontend quality checks
 - Core workflows can be tested by a recruiter in under 10 minutes
 - CV description is concise and impact-focused
 - GitHub repo looks intentional and production-style
+
+Implemented packaging foundation:
+
+- `docs/architecture.md`
+- `docs/api.md`
+- `docs/portfolio.md`
+- `docs/release-checklist.md`
+- README documentation links
+- Root verification scripts
 
 Suggested GitHub issues:
 

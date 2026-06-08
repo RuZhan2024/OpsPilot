@@ -10,9 +10,16 @@ The detailed implementation roadmap lives in [docs/development-plan.md](docs/dev
 
 It tracks the current MVP, high-value portfolio enhancements and the recommended order for future development.
 
+Additional project documentation:
+
+- [Architecture](docs/architecture.md)
+- [API Overview](docs/api.md)
+- [Portfolio Notes](docs/portfolio.md)
+- [Release Checklist](docs/release-checklist.md)
+
 ## Project Status
 
-MVP development is in progress with the main full-stack product flow implemented locally.
+The portfolio MVP is implemented locally and is now in release packaging mode.
 
 Completed:
 
@@ -29,14 +36,15 @@ Completed:
 - Stream setup and live control mock for event operations
 - Media library and replay asset operations
 - Audience whitelist import and registration approval workflow
-
-Still planned before public portfolio release:
-
 - Analytics upgrade with livestream-specific metrics
+- Frontend test foundation with Vitest and React Testing Library
+
+Remaining before public portfolio release:
+
 - Final UI polish pass
-- Expanded business-focused backend tests
 - README screenshots
 - Production deployment
+- Final live demo verification
 
 ## Demo Accounts
 
@@ -214,6 +222,8 @@ OpsPilot records important workspace actions such as event creation, event updat
 
 ## Architecture
 
+The detailed architecture notes are available in [docs/architecture.md](docs/architecture.md).
+
 ```mermaid
 flowchart LR
   Browser["Browser / Recruiter Demo"] --> Web["Next.js Web App"]
@@ -266,6 +276,8 @@ Core Prisma models:
 The schema is designed around a workspace-based B2B SaaS model with role-based membership, event ownership, operational setup data and analytics snapshots.
 
 ## API Overview
+
+The detailed API notes are available in [docs/api.md](docs/api.md).
 
 Authentication:
 
@@ -457,6 +469,12 @@ NEXT_PUBLIC_API_URL="http://localhost:4000"
 
 ## Quality Checks
 
+Run the full local verification suite:
+
+```bash
+npm run verify
+```
+
 Build the backend:
 
 ```bash
@@ -497,7 +515,7 @@ Frontend tests use Vitest, React Testing Library, jsdom, user-event and jest-dom
 
 ## Screenshots
 
-Screenshots will be added after the final UI polish and deployment pass.
+Screenshots should be captured during the final UI polish and deployment pass. The capture plan is documented in [docs/release-checklist.md](docs/release-checklist.md).
 
 Capture checklist:
 
@@ -538,6 +556,8 @@ OpsPilot is intended to support a senior frontend or full-stack developer portfo
 - Authentication and authorization
 - Realistic B2B SaaS product thinking
 - Analytics and operational recommendation features
+
+CV, LinkedIn and interview talking points are available in [docs/portfolio.md](docs/portfolio.md).
 
 ## Roadmap
 
