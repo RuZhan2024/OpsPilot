@@ -55,6 +55,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return null;
   }
 
+  const visibleNavigation = navigation.filter(
+    (item) => !item.roles || item.roles.includes(user.role),
+  );
+
+  const handleLogout = () => {
+    logout();
+    router.replace('/login');
+  };
+
   return (
     <div className="min-h-screen bg-slate-100 text-slate-950">
       <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-slate-200 bg-white lg:flex lg:flex-col">
@@ -69,9 +78,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="flex-1 space-y-1 px-3 py-4">
-          {navigation
-            .filter((item) => !item.roles || item.roles.includes(user.role))
-            .map((item) => {
+          {visibleNavigation.map((item) => {
             const Icon = item.icon;
             const isActive =
               pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -105,10 +112,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           <button
             type="button"
-            onClick={() => {
-              logout();
-              router.replace('/login');
-            }}
+            onClick={handleLogout}
             className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
           >
             <LogOut className="h-4 w-4" aria-hidden="true" />
@@ -118,18 +122,62 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="lg:pl-72">
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-slate-200 bg-white/90 px-4 backdrop-blur lg:px-8">
-          <div>
-            <div className="text-sm font-semibold text-slate-900">
-              Workspace overview
+        <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 backdrop-blur">
+          <div className="flex h-16 items-center justify-between px-4 lg:px-8">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-emerald-600 text-white lg:hidden">
+                <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold text-slate-900">
+                  Workspace overview
+                </div>
+                <div className="truncate text-xs text-slate-500">
+                  Signed in as {user.name}
+                </div>
+              </div>
             </div>
-            <div className="text-xs text-slate-500">
-              Signed in as {user.name}
+            <div className="flex items-center gap-2">
+              <div className="hidden rounded-md bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-100 sm:block">
+                {user.role.replace('_', ' ')}
+              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 hover:text-slate-950 lg:hidden"
+                aria-label="Sign out"
+                title="Sign out"
+              >
+                <LogOut className="h-4 w-4" aria-hidden="true" />
+              </button>
             </div>
           </div>
-          <div className="rounded-md bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-100">
-            {user.role.replace('_', ' ')}
-          </div>
+
+          <nav
+            className="flex gap-2 overflow-x-auto border-t border-slate-100 px-4 py-2 lg:hidden"
+            aria-label="Primary navigation"
+          >
+            {visibleNavigation.map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`inline-flex h-9 shrink-0 items-center gap-2 rounded-md px-3 text-sm font-medium transition ${
+                    isActive
+                      ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" aria-hidden="true" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
         </header>
         <main className="px-4 py-6 lg:px-8">{children}</main>
       </div>
