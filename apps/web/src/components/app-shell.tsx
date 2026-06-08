@@ -6,6 +6,7 @@ import {
   FileText,
   LayoutDashboard,
   LogOut,
+  Settings,
   ShieldCheck,
   Sparkles,
   UserRoundCog,
@@ -24,6 +25,7 @@ const navigation = [
   { label: 'Recommendations', href: '/recommendations', icon: Sparkles },
   { label: 'Users', href: '/users', icon: UserRoundCog, roles: ['ADMIN'] },
   { label: 'Audit Logs', href: '/audit-logs', icon: FileText, roles: ['ADMIN'] },
+  { label: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {

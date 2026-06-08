@@ -226,6 +226,13 @@ GET   /users/:id
 PATCH /users/:id/role
 ```
 
+Workspaces:
+
+```txt
+GET   /workspaces/current
+PATCH /workspaces/current
+```
+
 Events:
 
 ```txt
