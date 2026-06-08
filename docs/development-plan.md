@@ -448,6 +448,8 @@ Suggested GitHub issues:
 
 ## Frontend Testing Plan
 
+Status: Foundation implemented.
+
 Frontend tests should focus on user-visible behaviour rather than implementation details. The goal is to show testing judgment for a frontend-focused full-stack role, not to chase high coverage numbers.
 
 Recommended stack:
@@ -467,6 +469,17 @@ Minimum release coverage:
 - Stream setup page edit state for Admin/Event Manager
 - Stream setup page read-only state for Analyst/Viewer
 - Empty/loading/error state for one API-driven list page
+
+Implemented foundation:
+
+- Vitest test runner with jsdom
+- React Testing Library and user-event setup
+- jest-dom matchers
+- QueryClient test render helper
+- Login form validation and demo account tests
+- Role-aware AppShell navigation tests
+- Dashboard API render test
+- Event form date validation and submit test
 
 Good follow-up coverage:
 
@@ -516,7 +529,7 @@ Use this sequence after the current MVP:
 3. Build V1.2 Media Library and Replay Operations
 4. Build V1.3 Audience Whitelist Import and Approval Workflow
 5. V1.4 Analytics Upgrade completed
-6. Add frontend test foundation and critical workflow tests
+6. Frontend test foundation and critical workflow tests completed
 7. Build V1.5 Release Polish and Portfolio Packaging
 
 Do not start real AI, real livestreaming or complex storage before V1.5.
@@ -525,11 +538,11 @@ Do not start real AI, real livestreaming or complex storage before V1.5.
 
 The next best feature to build is:
 
-> Frontend test foundation and critical workflow tests
+> V1.5 Release Polish and Portfolio Packaging
 
 Reason:
 
-Stream Setup, Media Library, Audience Whitelist and Analytics Upgrade are now in place. Frontend tests are the next strongest step because they prove the dashboard, auth flow and role-aware UI can be maintained safely as the portfolio moves toward release polish.
+Stream Setup, Media Library, Audience Whitelist, Analytics Upgrade and the frontend test foundation are now in place. V1.5 should package the project for recruiters with screenshots, README polish, architecture/API notes and deployment readiness.
 
 ## Definition of Done for Each Feature
 

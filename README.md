@@ -487,6 +487,14 @@ Run backend tests:
 npm run test:api
 ```
 
+Run frontend tests:
+
+```bash
+npm run test:web
+```
+
+Frontend tests use Vitest, React Testing Library, jsdom, user-event and jest-dom. Current coverage focuses on login form validation, role-aware navigation, dashboard API rendering and event form validation.
+
 ## Screenshots
 
 Screenshots will be added after the final UI polish and deployment pass.
