@@ -28,10 +28,10 @@ Completed:
 - Demo seed data for a realistic SaaS workspace
 - Stream setup and live control mock for event operations
 - Media library and replay asset operations
+- Audience whitelist import and registration approval workflow
 
 Still planned before public portfolio release:
 
-- Audience whitelist import and approval workflow
 - Analytics upgrade with livestream-specific metrics
 - Final UI polish pass
 - Expanded business-focused backend tests
@@ -117,6 +117,14 @@ Event detail pages connect the full setup workflow:
 ### Audience Access Control
 
 Events can be configured with audience access rules such as public, private, invite-only, email domain restricted and manual approval. The data model keeps access rules, audience groups and registrations separate to better reflect real B2B SaaS workflows.
+
+The audience workflow also includes:
+
+- Bulk invitation import from pasted email lists
+- Duplicate and invalid email detection
+- Invitation status tracking
+- Registration approval and rejection
+- Natural-language access rule preview
 
 ### Content Builder
 
@@ -318,6 +326,10 @@ POST   /events/:eventId/access-rules
 PATCH  /access-rules/:id
 DELETE /access-rules/:id
 GET    /events/:eventId/registrations
+GET    /events/:eventId/invitations
+POST   /events/:eventId/invitations/bulk
+PATCH  /registrations/:id/approve
+PATCH  /registrations/:id/reject
 ```
 
 Content modules:
@@ -484,6 +496,7 @@ Capture checklist:
 - Media library
 - Event media and replay
 - Audience access rules
+- Whitelist import and registration approval
 - Content builder
 - Engagement tools
 - Analytics dashboard
@@ -520,7 +533,7 @@ Recommended portfolio roadmap:
 - V1.0: finish core SaaS MVP verification, UI polish, tests, screenshots and deployment
 - V1.1: stream setup and live control mock for event operations
 - V1.2: media library and replay asset operations
-- V1.3: add audience whitelist import and registration approval workflow
+- V1.3: audience whitelist import and registration approval workflow
 - V1.4: upgrade analytics with device, source, geography, peak viewers and drop-off metrics
 - V1.5: package the project for GitHub, CV, LinkedIn and live demo review
 

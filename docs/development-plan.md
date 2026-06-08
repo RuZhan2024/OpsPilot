@@ -307,6 +307,10 @@ Routes:
 - `/events/[id]/audience`
 - `/audience-groups`
 
+Status:
+
+Implemented locally.
+
 Backend scope:
 
 - Extend invitation or registration workflow with whitelist entries
@@ -519,11 +523,11 @@ Do not start real AI, real livestreaming or complex storage before V1.5.
 
 The next best feature to build is:
 
-> V1.3 Audience Whitelist Import and Approval Workflow
+> V1.4 Analytics Upgrade
 
 Reason:
 
-Stream Setup and Media Library are now in place. Audience Whitelist Import is the next strongest workflow because it adds complex form validation, duplicate handling, approval states and enterprise access-control depth.
+Stream Setup, Media Library and Audience Whitelist workflows are now in place. Analytics Upgrade is the next strongest step because it creates high-signal screenshots and lets OpsPilot tell a clearer event-performance story.
 
 ## Definition of Done for Each Feature
 

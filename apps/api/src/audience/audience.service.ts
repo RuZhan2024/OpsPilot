@@ -4,9 +4,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { AccessRuleType, Prisma, Role } from '@prisma/client';
+import {
+  AccessRuleType,
+  Prisma,
+  RegistrationStatus,
+  Role,
+} from '@prisma/client';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import { PrismaService } from '../prisma/prisma.service';
+import { BulkCreateInvitationsDto } from './dto/bulk-create-invitations.dto';
 import { CreateAccessRuleDto } from './dto/create-access-rule.dto';
 import { CreateAudienceGroupDto } from './dto/create-audience-group.dto';
 import { UpdateAccessRuleDto } from './dto/update-access-rule.dto';
@@ -188,6 +194,143 @@ export class AudienceService {
     });
   }
 
+  async findInvitations(user: AuthenticatedUser, eventId: string) {
+    await this.findEventForRead(user, eventId);
+
+    return this.prisma.invitation.findMany({
+      where: {
+        eventId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  async bulkCreateInvitations(
+    user: AuthenticatedUser,
+    eventId: string,
+    bulkCreateInvitationsDto: BulkCreateInvitationsDto,
+  ) {
+    const event = await this.findEventForMutation(user, eventId);
+    const emails = this.normalizeEmails(bulkCreateInvitationsDto.emails);
+
+    if (emails.length === 0) {
+      throw new BadRequestException('At least one valid email is required');
+    }
+
+    const [existingInvitations, existingRegistrations] = await Promise.all([
+      this.prisma.invitation.findMany({
+        where: {
+          eventId: event.id,
+          email: {
+            in: emails,
+          },
+        },
+        select: {
+          email: true,
+        },
+      }),
+      this.prisma.registration.findMany({
+        where: {
+          eventId: event.id,
+          email: {
+            in: emails,
+          },
+        },
+        select: {
+          email: true,
+        },
+      }),
+    ]);
+
+    const existingInvitationEmails = new Set(
+      existingInvitations.map((invitation) => invitation.email),
+    );
+    const existingRegistrationEmails = new Set(
+      existingRegistrations.map((registration) => registration.email),
+    );
+    const emailsToCreate = emails.filter(
+      (email) =>
+        !existingInvitationEmails.has(email) &&
+        !existingRegistrationEmails.has(email),
+    );
+
+    if (emailsToCreate.length > 0) {
+      await this.prisma.invitation.createMany({
+        data: emailsToCreate.map((email) => ({
+          eventId: event.id,
+          email,
+        })),
+      });
+    }
+
+    await this.createAuditLog(
+      user,
+      'INVITATIONS_IMPORTED',
+      'Invitation',
+      event.id,
+      {
+        eventId: event.id,
+        eventTitle: event.title,
+        importedCount: emailsToCreate.length,
+        skippedExistingInvitations: existingInvitationEmails.size,
+        skippedExistingRegistrations: existingRegistrationEmails.size,
+      },
+    );
+
+    return {
+      eventId: event.id,
+      importedCount: emailsToCreate.length,
+      skippedExistingInvitations: Array.from(existingInvitationEmails),
+      skippedExistingRegistrations: Array.from(existingRegistrationEmails),
+      importedEmails: emailsToCreate,
+    };
+  }
+
+  async updateRegistrationStatus(
+    user: AuthenticatedUser,
+    id: string,
+    status: 'APPROVED' | 'REJECTED',
+  ) {
+    const existingRegistration = await this.findRegistrationForMutation(
+      user,
+      id,
+    );
+
+    if (existingRegistration.status === RegistrationStatus.ATTENDED) {
+      throw new BadRequestException(
+        'Attended registrations cannot be approved or rejected',
+      );
+    }
+
+    const registration = await this.prisma.registration.update({
+      where: {
+        id: existingRegistration.id,
+      },
+      data: {
+        status,
+      },
+    });
+
+    await this.createAuditLog(
+      user,
+      status === RegistrationStatus.APPROVED
+        ? 'REGISTRATION_APPROVED'
+        : 'REGISTRATION_REJECTED',
+      'Registration',
+      registration.id,
+      {
+        eventId: existingRegistration.event.id,
+        eventTitle: existingRegistration.event.title,
+        email: registration.email,
+        status: registration.status,
+      },
+    );
+
+    return registration;
+  }
+
   private async findEventForRead(user: AuthenticatedUser, id: string) {
     const event = await this.prisma.event.findFirst({
       where: {
@@ -247,6 +390,32 @@ export class AudienceService {
     return accessRule;
   }
 
+  private async findRegistrationForMutation(
+    user: AuthenticatedUser,
+    id: string,
+  ) {
+    const registration = await this.prisma.registration.findFirst({
+      where: {
+        id,
+        event: {
+          workspaceId: user.workspaceId,
+          archivedAt: null,
+        },
+      },
+      include: {
+        event: true,
+      },
+    });
+
+    if (!registration) {
+      throw new NotFoundException('Registration not found');
+    }
+
+    this.assertCanMutateEvent(user, registration.event.createdById);
+
+    return registration;
+  }
+
   private assertCanAccessEvent(user: AuthenticatedUser, createdById: string) {
     if (user.role === Role.EVENT_MANAGER && createdById !== user.id) {
       throw new ForbiddenException('You can only access events you own');
@@ -277,6 +446,14 @@ export class AudienceService {
       .filter(Boolean);
 
     return Array.from(new Set(normalizedDomains));
+  }
+
+  private normalizeEmails(emails: string[]) {
+    const normalizedEmails = emails
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean);
+
+    return Array.from(new Set(normalizedEmails));
   }
 
   private validateAccessRule(type: AccessRuleType, domainWhitelist: string[]) {

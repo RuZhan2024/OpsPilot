@@ -449,12 +449,68 @@ async function main() {
           eventId: event.id,
           name: `Attendee ${index + 1}`,
           email: `attendee${index + 1}.${event.id.slice(0, 5)}@${domain}`,
-          status: index % 4 === 0 ? "ATTENDED" : "APPROVED",
+          status:
+            index % 11 === 0
+              ? "REJECTED"
+              : index % 7 === 0
+                ? "PENDING"
+                : index % 4 === 0
+                  ? "ATTENDED"
+                  : "APPROVED",
           source: index % 2 === 0 ? "Landing page" : "Partner invite",
         },
       });
     }
   }
+
+  await prisma.invitation.createMany({
+    data: [
+      {
+        eventId: launchEvent.id,
+        email: "sarah.customer@customer.com",
+        status: "SENT",
+        sentAt: addDays(now, -2),
+      },
+      {
+        eventId: launchEvent.id,
+        email: "alex.partner@partner.com",
+        status: "ACCEPTED",
+        sentAt: addDays(now, -3),
+      },
+      {
+        eventId: launchEvent.id,
+        email: "pending.guest@enterprise.com",
+        status: "PENDING",
+      },
+      {
+        eventId: onboardingEvent.id,
+        email: "customer.success@customer.com",
+        status: "SENT",
+        sentAt: addDays(now, -1),
+      },
+      {
+        eventId: onboardingEvent.id,
+        email: "new.admin@enterprise.com",
+        status: "PENDING",
+      },
+      {
+        eventId: aiRoadmapEvent.id,
+        email: "ai.lead@customer.com",
+        status: "SENT",
+        sentAt: addDays(now, -1),
+      },
+      {
+        eventId: aiRoadmapEvent.id,
+        email: "product.ops@partner.com",
+        status: "PENDING",
+      },
+      {
+        eventId: partnerEvent.id,
+        email: "implementation.partner@partner.com",
+        status: "PENDING",
+      },
+    ],
+  });
 
   await prisma.contentModule.createMany({
     data: [
