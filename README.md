@@ -27,10 +27,10 @@ Completed:
 - Audit logs for key operational actions
 - Demo seed data for a realistic SaaS workspace
 - Stream setup and live control mock for event operations
+- Media library and replay asset operations
 
 Still planned before public portfolio release:
 
-- Media library and replay operations
 - Audience whitelist import and approval workflow
 - Analytics upgrade with livestream-specific metrics
 - Final UI polish pass
@@ -148,6 +148,22 @@ The stream setup workflow includes:
 - QR preview mock
 
 This feature is intentionally API-backed but infrastructure-light, so the public demo remains stable while still demonstrating enterprise livestream operations thinking.
+
+### Media Library and Replay Operations
+
+OpsPilot includes an API-backed media library for replay packages, live recordings, slide decks, image assets and resource files.
+
+The media workflow includes:
+
+- Server-side search, filtering and pagination
+- Media asset status tracking
+- Live recording and replay source tracking
+- Event-level media attachment
+- Replay readiness signals
+- Marker lists for clip candidates
+- Clip request mock workflow
+
+This strengthens the project as a B2B livestream operations console without requiring real file storage or video processing infrastructure.
 
 ### Analytics Dashboards
 
@@ -278,6 +294,18 @@ Stream settings:
 ```txt
 GET   /events/:eventId/stream-settings
 PATCH /events/:eventId/stream-settings
+```
+
+Media assets:
+
+```txt
+GET   /media-assets
+POST  /media-assets
+GET   /media-assets/:id
+PATCH /media-assets/:id
+PATCH /media-assets/:id/archive
+GET   /events/:eventId/media-assets
+POST  /events/:eventId/media-assets/:assetId/attach
 ```
 
 Audience:
@@ -453,6 +481,8 @@ Capture checklist:
 - Event list
 - Event detail
 - Stream setup
+- Media library
+- Event media and replay
 - Audience access rules
 - Content builder
 - Engagement tools
@@ -489,7 +519,7 @@ Recommended portfolio roadmap:
 
 - V1.0: finish core SaaS MVP verification, UI polish, tests, screenshots and deployment
 - V1.1: stream setup and live control mock for event operations
-- V1.2: add media library and replay asset operations
+- V1.2: media library and replay asset operations
 - V1.3: add audience whitelist import and registration approval workflow
 - V1.4: upgrade analytics with device, source, geography, peak viewers and drop-off metrics
 - V1.5: package the project for GitHub, CV, LinkedIn and live demo review

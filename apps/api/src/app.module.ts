@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { ContentModulesModule } from './content-modules/content-modules.module';
 import { EngagementModule } from './engagement/engagement.module';
 import { EventsModule } from './events/events.module';
+import { MediaAssetsModule } from './media-assets/media-assets.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RecommendationsModule } from './recommendations/recommendations.module';
 import { StreamSettingsModule } from './stream-settings/stream-settings.module';
@@ -22,6 +23,7 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
     AudienceModule,
     ContentModulesModule,
     EngagementModule,
+    MediaAssetsModule,
     AnalyticsModule,
     RecommendationsModule,
     StreamSettingsModule,

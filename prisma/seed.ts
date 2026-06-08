@@ -10,6 +10,8 @@ async function main() {
 
   await prisma.auditLog.deleteMany();
   await prisma.recommendation.deleteMany();
+  await prisma.mediaMarker.deleteMany();
+  await prisma.mediaAsset.deleteMany();
   await prisma.streamSetting.deleteMany();
   await prisma.analyticsSnapshot.deleteMany();
   await prisma.feedback.deleteMany();
@@ -219,6 +221,157 @@ async function main() {
         backupStreamEnabled: false,
         viewerUrl: `http://localhost:3000/watch/${securityEvent.id}`,
         mobileViewerUrl: `http://localhost:3000/watch/${securityEvent.id}?view=mobile`,
+      },
+    ],
+  });
+
+  await prisma.mediaAsset.create({
+    data: {
+      workspaceId: workspace.id,
+      eventId: launchEvent.id,
+      createdById: manager.id,
+      title: "Q2 Product Launch Replay",
+      description: "Edited replay package for customers who missed the launch webinar.",
+      assetType: "REPLAY",
+      source: "LIVE_RECORDING",
+      status: "READY",
+      durationSeconds: 5400,
+      sizeBytes: 1_980_000_000,
+      thumbnailUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
+      playbackUrl: "https://example.com/replays/q2-product-launch",
+      markers: {
+        create: [
+          {
+            timestampSeconds: 0,
+            label: "Opening",
+            note: "Host introduction and housekeeping.",
+          },
+          {
+            timestampSeconds: 720,
+            label: "Product keynote",
+            note: "Main segment for replay clipping.",
+          },
+          {
+            timestampSeconds: 3120,
+            label: "Customer Q&A",
+            note: "Good candidate for short highlight clips.",
+          },
+        ],
+      },
+    },
+  });
+
+  await prisma.mediaAsset.create({
+    data: {
+      workspaceId: workspace.id,
+      eventId: townHallEvent.id,
+      createdById: manager.id,
+      title: "Engineering Town Hall Live Recording",
+      description: "Raw live recording awaiting post-event review.",
+      assetType: "VIDEO",
+      source: "LIVE_RECORDING",
+      status: "PROCESSING",
+      durationSeconds: 3600,
+      sizeBytes: 1442840576,
+      thumbnailUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978",
+      playbackUrl: "https://example.com/recordings/engineering-town-hall",
+      markers: {
+        create: [
+          {
+            timestampSeconds: 480,
+            label: "Platform update",
+            note: "Engineering roadmap segment.",
+          },
+          {
+            timestampSeconds: 2100,
+            label: "Leadership Q&A",
+            note: "Internal-only discussion.",
+          },
+        ],
+      },
+    },
+  });
+
+  await prisma.mediaAsset.createMany({
+    data: [
+      {
+        workspaceId: workspace.id,
+        eventId: launchEvent.id,
+        createdById: manager.id,
+        title: "Launch Slides PDF",
+        description: "Customer-facing slide deck for the product launch.",
+        assetType: "SLIDES",
+        source: "UPLOADED",
+        status: "READY",
+        sizeBytes: 18_432_000,
+        thumbnailUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71",
+        playbackUrl: "https://example.com/resources/launch-slides.pdf",
+      },
+      {
+        workspaceId: workspace.id,
+        eventId: securityEvent.id,
+        createdById: manager.id,
+        title: "Enterprise Security Briefing Replay",
+        description: "Replay export prepared for enterprise customer follow-up.",
+        assetType: "REPLAY",
+        source: "REPLAY_EXPORT",
+        status: "READY",
+        durationSeconds: 4200,
+        sizeBytes: 1635778560,
+        thumbnailUrl: "https://images.unsplash.com/photo-1563986768494-4dee2763ff3f",
+        playbackUrl: "https://example.com/replays/security-briefing",
+      },
+      {
+        workspaceId: workspace.id,
+        eventId: onboardingEvent.id,
+        createdById: manager.id,
+        title: "Onboarding Workbook",
+        description: "Resource file linked from the customer onboarding session.",
+        assetType: "RESOURCE",
+        source: "UPLOADED",
+        status: "READY",
+        sizeBytes: 7_480_000,
+        thumbnailUrl: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4",
+        playbackUrl: "https://example.com/resources/onboarding-workbook.pdf",
+      },
+      {
+        workspaceId: workspace.id,
+        createdById: manager.id,
+        title: "AI Roadmap Thumbnail Pack",
+        description: "Visual assets prepared for the AI roadmap registration page.",
+        assetType: "IMAGE",
+        source: "UPLOADED",
+        status: "READY",
+        sizeBytes: 4_220_000,
+        thumbnailUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995",
+        playbackUrl: "https://example.com/assets/ai-roadmap-thumbnails",
+      },
+      {
+        workspaceId: workspace.id,
+        eventId: workshopEvent.id,
+        createdById: manager.id,
+        title: "Developer Workshop Clip Export",
+        description: "Short clip export for developer enablement follow-up.",
+        assetType: "VIDEO",
+        source: "REPLAY_EXPORT",
+        status: "FAILED",
+        durationSeconds: 540,
+        sizeBytes: 312_000_000,
+        thumbnailUrl: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4",
+        playbackUrl: "https://example.com/clips/developer-workshop",
+      },
+      {
+        workspaceId: workspace.id,
+        createdById: manager.id,
+        title: "Partner Training External Recording",
+        description: "Externally hosted recording waiting to be attached to the partner training event.",
+        assetType: "VIDEO",
+        source: "EXTERNAL_LINK",
+        status: "READY",
+        durationSeconds: 5100,
+        sizeBytes: 0,
+        thumbnailUrl: "https://images.unsplash.com/photo-1556761175-b413da4baf72",
+        playbackUrl: "https://example.com/external/partner-training",
       },
     ],
   });

@@ -109,6 +109,7 @@ Remaining V1.0 tasks:
 
 - Final UI consistency pass
 - Backend test expansion where business logic is most important
+- Frontend test foundation and critical UI workflow coverage
 - Screenshot capture
 - Deployment
 - Portfolio/CV text finalization
@@ -210,6 +211,10 @@ Routes:
 
 - `/media-library`
 - `/events/[id]/media`
+
+Status:
+
+Implemented locally.
 
 Backend scope:
 
@@ -402,6 +407,7 @@ Prepare OpsPilot for GitHub, live demo, CV and LinkedIn.
 
 Scope:
 
+- Frontend testing setup and critical workflow tests
 - Screenshot capture
 - README screenshot section
 - Architecture diagram polish
@@ -417,17 +423,68 @@ Acceptance criteria:
 - Live demo works with seeded data
 - README has screenshots
 - Demo accounts work
+- `npm run test:web` exists and covers critical user-visible frontend behaviour
 - Core workflows can be tested by a recruiter in under 10 minutes
 - CV description is concise and impact-focused
 - GitHub repo looks intentional and production-style
 
 Suggested GitHub issues:
 
+- `test(web): set up React Testing Library`
+- `test(web): cover auth forms and role-aware navigation`
+- `test(web): cover event form validation`
+- `test(web): cover stream setup edit and read-only states`
 - `docs: add final README screenshots`
 - `docs: polish architecture and API overview`
 - `chore: verify seed data for public demo`
 - `chore: deploy web api and database`
 - `docs: add CV and LinkedIn project copy`
+
+## Frontend Testing Plan
+
+Frontend tests should focus on user-visible behaviour rather than implementation details. The goal is to show testing judgment for a frontend-focused full-stack role, not to chase high coverage numbers.
+
+Recommended stack:
+
+- Jest or Vitest
+- React Testing Library
+- `@testing-library/user-event`
+- `@testing-library/jest-dom`
+- jsdom test environment
+
+Minimum release coverage:
+
+- Login form validation and failed login error state
+- Register form validation
+- Role-aware navigation rendering for Admin, Event Manager, Analyst and Viewer
+- Event form validation for required fields and date fields
+- Stream setup page edit state for Admin/Event Manager
+- Stream setup page read-only state for Analyst/Viewer
+- Empty/loading/error state for one API-driven list page
+
+Good follow-up coverage:
+
+- Audience access rule preview text
+- Content module form validation
+- Recommendation resolve action
+- Analytics empty state
+- Media Library filters and pagination after V1.2 is built
+
+Acceptance criteria:
+
+- Frontend tests can be run with `npm run test:web`
+- Tests mock API calls at the network/client boundary
+- Tests assert what the user sees or can do
+- Tests avoid checking component internals, CSS class names or implementation-only state
+- README includes frontend test command once the setup exists
+
+Suggested GitHub issues:
+
+- `test(web): configure frontend test runner`
+- `test(web): add auth form tests`
+- `test(web): add role-aware navigation tests`
+- `test(web): add event form validation tests`
+- `test(web): add stream setup permission tests`
 
 ## V2 Optional Enhancements
 
@@ -453,7 +510,8 @@ Use this sequence after the current MVP:
 3. Build V1.2 Media Library and Replay Operations
 4. Build V1.3 Audience Whitelist Import and Approval Workflow
 5. Build V1.4 Analytics Upgrade
-6. Build V1.5 Release Polish and Portfolio Packaging
+6. Add frontend test foundation and critical workflow tests
+7. Build V1.5 Release Polish and Portfolio Packaging
 
 Do not start real AI, real livestreaming or complex storage before V1.5.
 
@@ -461,11 +519,11 @@ Do not start real AI, real livestreaming or complex storage before V1.5.
 
 The next best feature to build is:
 
-> V1.2 Media Library and Replay Operations
+> V1.3 Audience Whitelist Import and Approval Workflow
 
 Reason:
 
-Stream Setup is now in place. Media Library is the next strongest hiring signal because it extends OpsPilot from event preparation and live operations into post-event replay and asset management.
+Stream Setup and Media Library are now in place. Audience Whitelist Import is the next strongest workflow because it adds complex form validation, duplicate handling, approval states and enterprise access-control depth.
 
 ## Definition of Done for Each Feature
 
@@ -482,6 +540,7 @@ Every new feature should include:
 - Audit log entry for important operations
 - README or roadmap update if it affects portfolio positioning
 - At least one focused backend test if business rules are involved
+- At least one focused frontend test when the feature adds meaningful user interaction
 
 ## Commit Strategy
 

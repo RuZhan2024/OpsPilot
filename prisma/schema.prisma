@@ -94,6 +94,28 @@ enum StreamStatus {
   OFFLINE
 }
 
+enum MediaAssetType {
+  VIDEO
+  REPLAY
+  SLIDES
+  IMAGE
+  RESOURCE
+}
+
+enum MediaAssetSource {
+  UPLOADED
+  LIVE_RECORDING
+  REPLAY_EXPORT
+  EXTERNAL_LINK
+}
+
+enum MediaAssetStatus {
+  PROCESSING
+  READY
+  FAILED
+  ARCHIVED
+}
+
 model User {
   id            String            @id @default(cuid())
   name          String
@@ -101,6 +123,7 @@ model User {
   passwordHash  String
   memberships   WorkspaceMember[]
   createdEvents Event[]           @relation("EventCreator")
+  mediaAssets   MediaAsset[]      @relation("MediaAssetCreator")
   auditLogs     AuditLog[]        @relation("AuditActor")
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
@@ -113,6 +136,7 @@ model Workspace {
   members        WorkspaceMember[]
   events         Event[]
   audienceGroups AudienceGroup[]
+  mediaAssets    MediaAsset[]
   auditLogs      AuditLog[]
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
@@ -160,6 +184,7 @@ model Event {
   analyticsSnapshots AnalyticsSnapshot[]
   recommendations    Recommendation[]
   streamSetting      StreamSetting?
+  mediaAssets        MediaAsset[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -362,6 +387,49 @@ model StreamSetting {
   updatedAt             DateTime     @updatedAt
 
   @@index([streamStatus])
+}
+
+model MediaAsset {
+  id              String           @id @default(cuid())
+  workspaceId     String
+  eventId         String?
+  createdById     String?
+  title           String
+  description     String?
+  assetType       MediaAssetType
+  source          MediaAssetSource
+  status          MediaAssetStatus @default(PROCESSING)
+  durationSeconds Int?
+  sizeBytes       Int?
+  thumbnailUrl    String?
+  playbackUrl     String?
+  workspace       Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  event           Event?           @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  createdBy       User?            @relation("MediaAssetCreator", fields: [createdById], references: [id])
+  markers         MediaMarker[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([workspaceId])
+  @@index([eventId])
+  @@index([createdById])
+  @@index([assetType])
+  @@index([source])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model MediaMarker {
+  id               String     @id @default(cuid())
+  mediaAssetId     String
+  timestampSeconds Int
+  label            String
+  note             String?
+  mediaAsset       MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+  createdAt        DateTime   @default(now())
+
+  @@index([mediaAssetId])
+  @@index([timestampSeconds])
 }
 
 model AuditLog {
