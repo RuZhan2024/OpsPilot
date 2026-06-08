@@ -14,6 +14,7 @@ import {
   AuthenticatedUser,
   LoginPayload,
   LoginResponse,
+  RegisterPayload,
 } from '@/lib/auth';
 
 type AuthContextValue = {
@@ -22,6 +23,7 @@ type AuthContextValue = {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (payload: LoginPayload) => Promise<void>;
+  register: (payload: RegisterPayload) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 };
@@ -91,14 +93,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await queryClient.invalidateQueries({ queryKey: ['auth', 'me', token] });
   }, [queryClient, token]);
 
-  const login = useCallback(
-    async (payload: LoginPayload) => {
-      const response = await apiRequest<LoginResponse>('/auth/login', {
-        method: 'POST',
-        auth: false,
-        body: JSON.stringify(payload),
-      });
-
+  const applyAuthResponse = useCallback(
+    (response: LoginResponse) => {
       queryClient.setQueryData(
         ['auth', 'me', response.accessToken],
         response.user,
@@ -108,6 +104,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [queryClient],
   );
 
+  const login = useCallback(
+    async (payload: LoginPayload) => {
+      const response = await apiRequest<LoginResponse>('/auth/login', {
+        method: 'POST',
+        auth: false,
+        body: JSON.stringify(payload),
+      });
+
+      applyAuthResponse(response);
+    },
+    [applyAuthResponse],
+  );
+
+  const register = useCallback(
+    async (payload: RegisterPayload) => {
+      const response = await apiRequest<LoginResponse>('/auth/register', {
+        method: 'POST',
+        auth: false,
+        body: JSON.stringify(payload),
+      });
+
+      applyAuthResponse(response);
+    },
+    [applyAuthResponse],
+  );
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
@@ -115,6 +137,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading: !hasCheckedStoredToken || (Boolean(token) && isUserLoading),
       isAuthenticated: Boolean(user && token),
       login,
+      register,
       logout,
       refreshUser,
     }),
@@ -123,6 +146,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isUserLoading,
       login,
       logout,
+      register,
       refreshUser,
       token,
       user,

@@ -213,6 +213,7 @@ The schema is designed around a workspace-based B2B SaaS model with role-based m
 Authentication:
 
 ```txt
+POST /auth/register
 POST /auth/login
 GET  /auth/me
 ```
